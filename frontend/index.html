@@ -1,10 +1,102 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>My Profile</title>
+  <meta charset="UTF-8">
+  <title>Me-API Frontend</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background: #f8f9fa;
+      color: #333;
+    }
+    h1, h2 {
+      color: #222;
+    }
+    .card {
+      background: #fff;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    input, button {
+      padding: 0.5rem;
+      margin: 0.2rem 0;
+    }
+    button {
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <h1>My Profile</h1>
-  <div id="profile"></div>
+
+  <h1>My Portfolio</h1>
+
+  <!-- Profile Section -->
+  <section class="card">
+    <h2>Profile</h2>
+    <div id="profile"></div>
+    <button onclick="loadProfile()">Load Profile</button>
+  </section>
+
+  <!-- Skill Search Section -->
+  <section class="card">
+    <h2>Search Projects by Skill</h2>
+    <input type="text" id="skillInput" placeholder="Enter a skill (e.g., Python)">
+    <button onclick="searchProjects()">Search</button>
+    <div id="projects"></div>
+  </section>
+
+  <!-- All Projects Section -->
+  <section class="card">
+    <h2>All Projects</h2>
+    <button onclick="loadProjects()">Load Projects</button>
+    <div id="allProjects"></div>
+  </section>
+
+  <script>
+    const API_BASE = "http://127.0.0.1:8000"; // change to your hosted API base URL
+
+    async function loadProfile() {
+      try {
+        const res = await fetch(`${API_BASE}/profile`);
+        const data = await res.json();
+        document.getElementById("profile").innerHTML = `
+          <p><strong>Name:</strong> ${data.name}</p>
+          <p><strong>Bio:</strong> ${data.bio}</p>
+          <p><strong>Email:</strong> ${data.email}</p>
+        `;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadProjects() {
+      try {
+        const res = await fetch(`${API_BASE}/projects`);
+        const data = await res.json();
+        document.getElementById("allProjects").innerHTML =
+          data.map(p => `<p><strong>${p.title}</strong>: ${p.description}</p>`).join("");
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function searchProjects() {
+      const skill = document.getElementById("skillInput").value;
+      try {
+        const res = await fetch(`${API_BASE}/projects/search?skill=${encodeURIComponent(skill)}`);
+        const data = await res.json();
+        document.getElementById("projects").innerHTML =
+          data.length > 0 
+            ? data.map(p => `<p><strong>${p.title}</strong>: ${p.description}</p>`).join("")
+            : "<p>No projects found for this skill.</p>";
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  </script>
+
 </body>
 </html>
