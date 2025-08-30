@@ -12,8 +12,8 @@ def get_profile():
 def create_project(data):
     conn = db_connect
     cursor = conn.cursor()
-    query = "INSERT INTO projects (name, description) VALUES (%s, %s)"
-    cursor.execute(query, (data["name"], data["description"]))
+    query = "INSERT INTO projects (profile_id,project_name,project_description,project_skill1,project_skill2,project_skill3,github_link) VALUES (1,%s, %s,%s,%s,%s,%s)"
+    cursor.execute(query, (data["name"], data["description"]), data["skill1"],data["skill2"],data["skill3"],data["ghlink"])
     conn.commit()
     conn.close()
     return {"message": "Project created successfully"}
