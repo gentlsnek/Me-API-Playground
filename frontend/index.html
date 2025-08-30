@@ -38,7 +38,25 @@
     <h2>Profile</h2>
     <div id="profile"></div>
     <button onclick="loadProfile()">Load Profile</button>
+    <h2>Update Profile</h2>
+
+  <label for="category">Field to update:</label>
+  <select id="category">
+    <option value="name">Name</option>
+    <option value="email">Email</option>
+    <option value="github">GitHub</option>
+    <option value="linkedin">LinkedIn</option>
+  </select>
+
+  <label for="subject">New value:</label>
+  <input type="text" id="subject" placeholder="Enter new value">
+
+  <button onclick="updateProfile()">Update Profile</button>
+
+  <p id="response"></p>
   </section>
+
+ 
 
   <!-- Skill Search Section -->
   <section class="card">
@@ -55,6 +73,15 @@
     <div id="allProjects"></div>
   </section>
 
+   <section class="card">
+  <h2>All Skills</h2>
+  <button onclick="loadSkills()">Load all skills</button>
+  <button onclick="loadTopSkills()">Load Top Skills</button>
+  <div id="allSkills"></div>
+</section>
+
+
+
   <script>
     const API_BASE = "http://127.0.0.1:8000"; // change to your hosted API base URL
 
@@ -66,8 +93,9 @@
         console.log(data)
         document.getElementById("profile").innerHTML = `
           <p><strong>Name:</strong> ${data.name}</p>
-          <p><strong>Bio:</strong> ${data.bio}</p>
           <p><strong>Email:</strong> ${data.email}</p>
+          <p><strong>Github:</strong> <a href=${data.github}>${data.github}</a></p>
+          <p><strong>Linkedin:</strong> <a href=${data.linkedin}>${data.linkedin}</a></p>
         `;
       } catch (err) {
         console.error(err);
@@ -76,10 +104,10 @@
 
     async function loadProjects() {
       try {
-        const res = await fetch(`${API_BASE}/projects`);
+        const res = await fetch(`${API_BASE}/projects/get`);
         const data = await res.json();
         document.getElementById("allProjects").innerHTML =
-          data.map(p => `<p><strong>${p.title}</strong>: ${p.description}</p>`).join("");
+          data.map(p => `<p><strong>${p.name}</strong>: ${p.description}</p><a href=${p.github_link}>${p.github_link}</a></p>`).join("");
       } catch (err) {
         console.error(err);
       }
@@ -88,16 +116,85 @@
     async function searchProjects() {
       const skill = document.getElementById("skillInput").value;
       try {
-        const res = await fetch(`${API_BASE}/projects/search?skill=${encodeURIComponent(skill)}`);
+        const res = await fetch(`${API_BASE}/projects/byskills/get/${encodeURIComponent(skill)}`);
         const data = await res.json();
         document.getElementById("projects").innerHTML =
           data.length > 0 
-            ? data.map(p => `<p><strong>${p.title}</strong>: ${p.description}</p>`).join("")
+            ? data.map(p => `<p><strong>${p.name}</strong>: ${p.description}, <a href=${p.github_link}>${p.github_link}</a></p>`).join("")
             : "<p>No projects found for this skill.</p>";
       } catch (err) {
         console.error(err);
       }
     }
+
+    async function loadSkills() {
+    try {
+      const res = await fetch(`${API_BASE}/skills`);
+      const data = await res.json();
+
+      const container = document.getElementById("allSkills");
+      container.innerHTML = "<h3>All Skills</h3>";
+
+      if (data.length === 0) {
+        container.innerHTML += "<p>No skills found.</p>";
+        return;
+      }
+
+      const ul = document.createElement("ul");
+      data.forEach(skillObj => {
+        const li = document.createElement("li");
+        li.textContent = skillObj.skill; // expects { skill: "Python" }
+        ul.appendChild(li);
+      });
+
+      container.appendChild(ul);
+    } catch (err) {
+      console.error("Error loading skills:", err);
+    }
+  }
+
+  // Load top 5 skills
+  async function loadTopSkills() {
+    try {
+      const res = await fetch(`${API_BASE}/skills/top`);
+      const data = await res.json();
+
+      const container = document.getElementById("allSkills");
+      container.innerHTML = "<h3>Top 5 Skills</h3>";
+
+      if (data.length === 0) {
+        container.innerHTML += "<p>No top skills found.</p>";
+        return;
+      }
+
+      const ul = document.createElement("ul");
+      data.forEach(skillObj => {
+        const li = document.createElement("li");
+        li.textContent = `${skillObj.skill}`;
+        ul.appendChild(li);
+      });
+
+      container.appendChild(ul);
+    } catch (err) {
+      console.error("Error loading top skills:", err);
+    }
+  }
+
+  async function updateProfile() {
+  const category = document.getElementById('category').value;
+  const subject = document.getElementById('subject').value;
+  
+  try {
+    const response = await fetch(`${API_BASE}/profile/update?category=${encodeURIComponent(category)}&subject=${encodeURIComponent(subject)}`, {
+      method: 'GET'
+    });
+    const data = await response.json();
+    document.getElementById('response').innerText = data.message || data.error;
+  } catch (err) {
+    console.error(err);
+    document.getElementById('response').innerText = 'An error occurred';
+  }
+}
   </script>
 
 </body>

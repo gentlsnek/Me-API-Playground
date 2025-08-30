@@ -88,6 +88,40 @@ def delete_project(project_id):
     conn.close()
     return {"message": "Project deleted successfully"}
 
+def get_project_by_skill(skill: str):
+    conn = db_connect()
+    cursor = conn.cursor()
+    query = """SELECT 
+    id,
+    profile_id,
+    project_name,
+    project_description,
+    project_skill1,
+    project_skill2,
+    project_skill3,
+    github_link
+    FROM projects
+    WHERE project_skill1 = %s
+    OR project_skill2 = %s
+    OR project_skill3 = %s;"""
+    cursor.execute(query, (skill,skill,skill))
+    rows = cursor.fetchall()
+    conn.close()
+
+    projects = []
+    for row in rows:
+        projects.append({
+            "id": row[1],
+            "name": row[2],
+            "description": row[3],
+            "skill1": row[4],
+            "skill2": row[5],
+            "skill3": row[6],
+            "github_link": row[7]
+        })
+    return projects
+  
+
 
 
 def get_top_skills():
@@ -114,6 +148,34 @@ def get_top_skills():
     for row in rows:
         skills.append({
             "skill": row[0],
-            "frequency": row[1]
         })
     return skills
+
+def get_skills():
+    conn = db_connect()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM skills")
+    rows = cursor.fetchall()
+    conn.close()
+    skills = []
+    for row in rows:
+        skills.append({
+            "skill": row[2],
+        })
+    return skills
+
+def update_profile(category: str, subject: str):
+    conn = db_connect()
+    cursor = conn.cursor()
+
+    # whitelist allowed columns to prevent SQL injection
+    allowed_columns = ["name", "email", "github", "linkedin"]
+    if category not in allowed_columns:
+        return {"error": f"Invalid category '{category}'"}
+
+    query = f"UPDATE profile SET {category} = %s WHERE id = 1;"  # assuming single profile
+    cursor.execute(query, (subject,))
+    conn.commit()
+    conn.close()
+
+    return {"message": f"Profile {category} updated to {subject}"}

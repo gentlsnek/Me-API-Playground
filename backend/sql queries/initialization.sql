@@ -5,8 +5,7 @@ CREATE TABLE profile (
     name VARCHAR(100),
     email VARCHAR(100),
     github VARCHAR(200),
-    linkedin VARCHAR(200),
-    portfolio VARCHAR(200)
+    linkedin VARCHAR(200)
 );
 
 CREATE TABLE education (
