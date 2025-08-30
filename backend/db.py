@@ -1,9 +1,9 @@
 import pymysql
 
-host = "sql213.infinityfree.com "
-user = "if0_39826194"
-password = "X9v5HUsZtVZEF"
-db = "if0_39826194_snektestingdb"
+host = "sql12.freesqldatabase.com"
+user = "sql12796732"
+password = "WMEibZTbtC"
+db = "sql12796732"
 
 def db_connect():
   try:
