@@ -61,7 +61,9 @@
     async function loadProfile() {
       try {
         const res = await fetch(`${API_BASE}/profile`);
+        
         const data = await res.json();
+        console.log(data)
         document.getElementById("profile").innerHTML = `
           <p><strong>Name:</strong> ${data.name}</p>
           <p><strong>Bio:</strong> ${data.bio}</p>
